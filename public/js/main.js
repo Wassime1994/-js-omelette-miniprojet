@@ -6,16 +6,20 @@ class Personne {
         this.mainDroite = mainDroite
         this.mainGauche = mainGauche
         this.deplacer=(a,b)=>{
-             b.personnes.push(this.nom)
-             a.personnes.pop()
+             b.personnes.push(this)
+             // précis dans la sélection
+             a.personnes.splice(a.personnes.indexOf(this),1)
+            console.log(b);
              this.lieu = b.nom
         }
         this.payerArticle =(a) =>{
+            //condition
             return this.argent -= a
         }
-        this.couper = (ingredient, outils)=>{
-            return `Nous utilisons ${outils} pour couper ${ingredient}`
-        }
+        this.couper = (a)=>{
+            if(a.etat=="entier"){
+                return `J'utilise ${couteau.nom} pour ${couteau.action} ${a.nom}`
+                }        }
         }
     }
 // INSTANCES PRINCIPALE DE MON PERSONNAGE
@@ -23,17 +27,17 @@ let wassime = new Personne('Wassime', "maison" , 100 , [], [] )
 
 let maison ={
     nom : "Maison" ,
-    personnes  : ['Wassime']
+    personnes  : [wassime]
 }
 // CLASS OUTILS
 class Outils {
     constructor(nom , action){
-        this.nom= "couteau"
-        this.action="couper"
+        this.nom= nom
+        this.action=action
     }
 }
 // INSTANCES CLASS OUTILS
-let couteau = new Outils ("Couteau" , "Couper")
+let couteau = new Outils ("couteau" , "couper")
 
 // CLASS INGREDIENT
 class Ingredient{
@@ -58,13 +62,14 @@ class Epicerie {
         this.nom=nom
         this.personnes =personnes
         this.paniers = paniers
+        // this.ingredient = course
         }
 }
 // INSTANCES DE MA CLASS EPICERIE
 let epicerie= new Epicerie('Chez Mouloud' , [] ,
  [
- { nom : "panier_pris" , contenu : []} ,
- { nom : "panier_restant" , contenu : []} ,
+    { nom : "panier_pris" , contenu : []} ,
+    { nom : "panier_restant" , contenu : []} ,
 ])
 
 
@@ -74,6 +79,7 @@ class Poele{
         this.contenu=contenu
         this.cuisson = ()=>{
             setTimeout(()=> {
+                bol.contenu.etat = "cuit"
                 return console.log(" DIIING DIIING L OMELETTE EST  CUITE !!! ")
             }, 4000)
         }
@@ -85,8 +91,13 @@ let poele = new Poele([])
 class Bol {
     constructor(contenu){
         this.contenu = contenu
-        this.melanger = (nomMelanger)=> {
-            return  `${nomMelanger} n'est pas encore cuit`
+        this.melanger = (nomMelanger) => {
+             let omelette = {
+                nom : nomMelanger,
+                etat : 'non cuit',
+            }
+            this.contenu = omelette
+            return  `${omelette.nom} n'est pas encore cuit`
     }
     }
 }
@@ -96,7 +107,7 @@ let bol = new Bol([])
 console.log(wassime.nom + " est actuellement à la " + wassime.lieu);
 console.log("Il y a dans la maison : " , maison.personnes)
 wassime.deplacer(maison,epicerie)
-console.log(wassime.lieu)
+console.log( "Je suis donc à   =   " , wassime.lieu)
 console.log("Après deplacement il y a la maison : " , maison.personnes)
 console.log("Il ya dans l'épicerie :  " , epicerie.personnes)
 
@@ -130,45 +141,51 @@ console.log("Je suis donc à :  " , wassime.lieu  , "Commençons donc a cuisiner
 
 
 let contenu_panier = wassime.mainDroite[0].contenu
-let ingredients_oeufs = [wassime.mainDroite[0].contenu[0].nom , wassime.mainDroite[0].contenu[1].nom , wassime.mainDroite[0].contenu[2].nom,wassime.mainDroite[0].contenu[3].nom   ]
+let ingredients_oeufs = wassime.mainDroite[0].contenu
+
 ingredients_oeufs.forEach(element => {
     bol.contenu.push(element)
     console.table(element , "ajouté a mon bol")
 });
 
+
+// deplacemenent vers epicerie
+wassime.deplacer(maison , epicerie)
+console.log(wassime.mainDroite)
+
 epicerie.paniers.push(wassime.mainDroite[0])
 console.warn("Panier dans mon epicerie  " , epicerie.paniers)
 
 
-wassime.mainDroite = " Rien  dans ma main"
+wassime.mainDroite = []   
 console.log("J'ai a present dans mon panier après avoir vider mon panier :   " , wassime.mainDroite)
-console.log('Voici mon bol :  ' , bol)
-wassime.deplacer(maison , epicerie)
-console.log(wassime.mainDroite)
-
-wassime.mainDroite ="Il n y a plus rien dans ma main droite"
-console.log(wassime.mainDroite)
-epicerie.paniers.pop()
 console.log("Panier chez mon epiciers :  " , epicerie.paniers)
-
 console.warn("PANIER REMIS A L EPICERIE")
+
 wassime.deplacer(epicerie,maison)
 console.warn("Nous sommes a la maison !");
+console.log('Voici mon bol :  ' , bol)
 console.log(bol)
+
 // COUPER ALIMENTS ENTIER SEULEMENTS
 console.log("Coupe des aliments :   " , wassime.couper(oeufs.nom , couteau.nom))
+
 console.log("Le contenu de mon bol  :   " , bol.contenu)
+
+
+
+console.log(wassime.couper(bol.contenu[0]))
+
+
+
+
 for (let index = 0; index < bol.contenu.length; index++) {
-    const melange = bol.contenu[index];
+    const melange = bol.contenu[index].nom;
     console.log("Je rajoute a mon melange : " ,melange )
 }
+
 console.log("Suivit de mon melange   : " ,bol.melanger('omelette'))
 poele.contenu.push(bol.contenu)
-bol.contenu="Il n y a plus rien dans mon bol"
-console.log(bol.contenu)
-console.log("Dans ma poele  " ,poele.contenu[0])
+console.log(bol);
 poele.cuisson()
-
-
-
 
